@@ -1,4 +1,4 @@
-FROM alpine:3
+FROM alpine:3 AS temp
 
 ARG frp_version='0.38.0'
 RUN mkdir -p /etc/frp 
@@ -7,7 +7,10 @@ ADD https://raw.githubusercontent.com/carry00/frp/dev/conf/frps.ini /etc/frp/
 WORKDIR /tmp
 RUN tar -xzf frp_${frp_version}_linux_amd64.tar.gz \
   && mv ./frp_${frp_version}_linux_amd64/frps /usr/bin \
-  && rm -rf /tmp/*
-  && chmod +x /usr/bin/frps
-ENTRYPOINT ["/usr/bin/frps  -c /etc/frp/frps.ini"]
-
+  && rm -rf /tmp/* 
+FROM alpine:3
+RUN mkdir -p /etc/frp 
+COPY --from=temp /usr/bin/frps /usr/bin
+COPY --from=temp /etc/frp/frps.ini /etc/frp/
+RUN  chmod +x /usr/bin/frps
+ENTRYPOINT ["/usr/bin/frps", "-c", "/etc/frp/frps.ini"]
