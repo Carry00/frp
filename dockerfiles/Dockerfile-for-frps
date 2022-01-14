@@ -1,4 +1,4 @@
-FROM alpine:3 AS temp
+FROM alpine:3
 
 ARG frp_version='0.38.0'
 RUN mkdir -p /etc/frp 
@@ -8,5 +8,6 @@ WORKDIR /tmp
 RUN tar -xzf frp_${frp_version}_linux_amd64.tar.gz \
   && mv ./frp_${frp_version}_linux_amd64/frps /usr/bin \
   && rm -rf /tmp/*
+  && chmod +x /usr/bin/frps
 ENTRYPOINT ["/usr/bin/frps  -c /etc/frp/frps.ini"]
 
