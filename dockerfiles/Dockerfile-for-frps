@@ -1,18 +1,12 @@
 FROM alpine:3 AS temp
 
 ARG frp_version='0.38.0'
+RUN mkdir -p /etc/frp 
 ADD https://github.com/fatedier/frp/releases/download/v${frp_version}/frp_${frp_version}_linux_amd64.tar.gz /tmp/
-
-RUN mkdir -p /etc/frp \
-  && cd /tmp \
-  && tar -xzf frp_${frp_version}_linux_amd64.tar.gz \
+ADD https://raw.githubusercontent.com/carry00/frp/dev/conf/frps.ini /etc/frp/
+WORKDIR /tmp
+RUN tar -xzf frp_${frp_version}_linux_amd64.tar.gz \
   && mv ./frp_${frp_version}_linux_amd64/frps /usr/bin \
   && rm -rf /tmp/*
-FROM alpine:3
-
-WORKDIR /app
-ADD https://raw.githubusercontent.com/carry00/frp/dev/conf/frps.ini /etc/frp/
-COPY --from=temp /tmp/frps /usr/bin
-
 ENTRYPOINT ["/usr/bin/frps  -c /etc/frp/frps.ini"]
 
